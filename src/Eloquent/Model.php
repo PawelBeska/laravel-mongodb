@@ -14,6 +14,7 @@ use Jenssegers\Mongodb\Query\Builder as QueryBuilder;
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\UTCDateTime;
+use Traversable;
 
 abstract class Model extends BaseModel
 {
@@ -514,5 +515,12 @@ abstract class Model extends BaseModel
         }
 
         return parent::__call($method, $parameters);
+    }
+
+    public static function toModel(Traversable $iterator)
+    {
+        return (new static())->newFromBuilder(
+            iterator_to_array($iterator)
+        );
     }
 }
