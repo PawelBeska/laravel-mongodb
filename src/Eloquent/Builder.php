@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Jenssegers\Mongodb\Helpers\QueriesRelationships;
 use MongoDB\Driver\Cursor;
 use MongoDB\Model\BSONDocument;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 class Builder extends EloquentBuilder
 {
@@ -276,7 +278,7 @@ class Builder extends EloquentBuilder
             );
         });
 
-        return new PaginationLengthAwarePaginator($collection, $total, $perPage, $page, [
+        return new LengthAwarePaginator($collection, $total, $perPage, $page, [
             'path' => Paginator::resolveCurrentPath(),
         ]);
     }
