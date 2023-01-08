@@ -4,6 +4,7 @@ namespace Jenssegers\Mongodb\Eloquent;
 
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Jenssegers\Mongodb\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Jenssegers\Mongodb\Helpers\QueriesRelationships;
 use MongoDB\Driver\Cursor;
 use MongoDB\Model\BSONDocument;
@@ -280,7 +281,7 @@ class Builder extends EloquentBuilder
         ]);
     }
 
-    public function aggregationGet(): Collection
+    public function aggregationGet(): EloquentCollection
     {
         return $this->raw(function (Collection $collection) {
             return $collection->aggregate($this->aggregationQuery);
