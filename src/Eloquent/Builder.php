@@ -41,6 +41,8 @@ class Builder extends EloquentBuilder
         'toSql',
     ];
 
+    protected $aggregationQuery = [];
+
     /**
      * @inheritdoc
      */
@@ -240,5 +242,47 @@ class Builder extends EloquentBuilder
                 'direction' => $direction === 1 ? 'asc' : 'desc',
             ];
         })->values();
+    }
+
+    public function setAggregationQuery(array $query): self
+    {
+        $this->aggregationQuery = $query;
+
+        return $this;
+    }
+
+    public function aggregationPaginate(
+        ?int $perPage = null,
+        string $pageName = 'page',
+        ?int $page = null
+    ): LengthAwarePaginator {
+        $page = $page ?: Paginator::resolveCurrentPage($pageName);
+
+        $total = $this->raw(function (Collection $collection) {
+            return $collection->aggregate($this->aggregationQuery);
+        })->count();
+
+        $perPage = $perPage ?: $this->model->getPerPage();
+
+        $collection = $this->raw(function (Collection $collection) use ($perPage, $page) {
+            return $collection->aggregate(
+                array_merge(
+                    $this->aggregationQuery,
+                    [['$skip' => ($page - 1) * $perPage]],
+                    [['$limit' => $perPage]]
+                )
+            );
+        });
+
+        return new PaginationLengthAwarePaginator($collection, $total, $perPage, $page, [
+            'path' => Paginator::resolveCurrentPath(),
+        ]);
+    }
+
+    public function aggregationGet(): Collection
+    {
+        return $this->raw(function (Collection $collection) {
+            return $collection->aggregate($this->aggregationQuery);
+        });
     }
 }
